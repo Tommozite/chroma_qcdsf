@@ -20,6 +20,11 @@ namespace Chroma
     extern const std::string name;
     bool registerAll();
   }
+  namespace InlineBarSpecEnvQCDSFsmall
+  {
+    extern const std::string name;
+    bool registerAll();
+  }
 
   //! Parameter structure
   /*! \ingroup inlinehadron */
@@ -84,6 +89,28 @@ namespace Chroma
     void func_xml(const unsigned long update_no,
 		  XMLWriter& xml_out);
 
+    void func_lime(const unsigned long update_no,
+		   std::string& lime_file);
+
+  private:
+    InlineBarspecParamsQCDSF params;
+  };
+
+  class InlineBarspecQCDSFsmall : public AbsInlineMeasurement
+  {
+  public:
+    ~InlineBarspecQCDSFsmall() {}
+    InlineBarspecQCDSFsmall(const InlineBarspecParamsQCDSF& p) : params(p) {}
+    InlineBarspecQCDSFsmall(const InlineBarspecQCDSFsmall& p) : params(p.params) {}
+
+    unsigned long getFrequency(void) const {return params.frequency;}
+
+    //! Do the measurement
+    void operator()(const unsigned long update_no,
+		    XMLWriter& xml_out);
+
+  protected:
+    //! Do the measurement
     void func_lime(const unsigned long update_no,
 		   std::string& lime_file);
 

@@ -295,6 +295,34 @@ namespace Chroma
       return SpinMatrix(0.5*(g_one + Gamma(8)*g_one + timesI(Gamma(3)*g_one + Gamma(11)*g_one)));
     }
 
+    //! T = (1 + \Sigma_1)*(1 + gamma_4) / 2   = (1 + Gamma(8) - i G(1) - i G(14)) / 2
+    SpinMatrix Tmixedx()
+    {
+      SpinMatrix g_one = 1.0;
+      return SpinMatrix(0.5*(g_one + Gamma(8)*g_one + timesMinusI(Gamma(1)*g_one + Gamma(14)*g_one)));
+    }
+
+    //! T = (1 - \Sigma_1)*(1 + gamma_4) / 2   = (1 + Gamma(8) + i G(1) + i G(14)) / 2
+    SpinMatrix Tmixedxminus()
+    {
+      SpinMatrix g_one = 1.0;
+      return SpinMatrix(0.5*(g_one + Gamma(8)*g_one + timesI(Gamma(1)*g_one + Gamma(14)*g_one)));
+    }
+
+    //! T = (1 + \Sigma_2)*(1 + gamma_4) / 2   = (1 + Gamma(8) + i G(2) + i G(13)) / 2
+    SpinMatrix Tmixedy()
+    {
+      SpinMatrix g_one = 1.0;
+      return SpinMatrix(0.5*(g_one + Gamma(8)*g_one + timesI(Gamma(2)*g_one + Gamma(13)*g_one)));
+    }
+
+    //! T = (1 - \Sigma_2)*(1 + gamma_4) / 2   = (1 + Gamma(8) - i G(2) - i G(13)) / 2
+    SpinMatrix Tmixedyminus()
+    {
+      SpinMatrix g_one = 1.0;
+      return SpinMatrix(0.5*(g_one + Gamma(8)*g_one + timesMinusI(Gamma(2)*g_one + Gamma(13)*g_one)));
+    }
+
     //! T = (1 - \Sigma_3)*(1 - gamma_4) / 2   = (1 - Gamma(8) + i G(3) - i G(11)) / 2
     // Need to flip the spin for time reversal
     SpinMatrix TmixedNegPar()
@@ -312,6 +340,28 @@ namespace Chroma
     SpinMatrix TspinDown(){
       SpinMatrix g_one = 1.0;
       return SpinMatrix(0.5*(g_one - timesMinusI(Gamma(11)*g_one)));
+    }
+
+    //! T = (1 + i \gamma_5 \gamma_1 )/2 = 1/2 *( 1  - iG(14) )
+    SpinMatrix TspinxUp(){
+      SpinMatrix g_one = 1.0;
+      return SpinMatrix(0.5*(g_one + timesMinusI(Gamma(14)*g_one)));
+    }
+    //! T = (1 - i \gamma_5 \gamma_1 )/2 = 1/2 *( 1  + iG(14) )
+    SpinMatrix TspinxDown(){
+      SpinMatrix g_one = 1.0;
+      return SpinMatrix(0.5*(g_one - timesMinusI(Gamma(14)*g_one)));
+    }
+
+    //! T = (1 + i \gamma_5 \gamma_2 )/2 = 1/2 *( 1  + iG(13) )
+    SpinMatrix TspinyUp(){
+      SpinMatrix g_one = 1.0;
+      return SpinMatrix(0.5*(g_one - timesMinusI(Gamma(13)*g_one)));
+    }
+    //! T = (1 - i \gamma_5 \gamma_2 )/2 = 1/2 *( 1  - iG(13) )
+    SpinMatrix TspinyDown(){
+      SpinMatrix g_one = 1.0;
+      return SpinMatrix(0.5*(g_one + timesMinusI(Gamma(13)*g_one)));
     }
 
 #ifndef _FRANKLIN_

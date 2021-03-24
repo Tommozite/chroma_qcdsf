@@ -100,6 +100,18 @@ namespace Chroma
     //! T = (1 - \Sigma_3)*(1 + gamma_4) / 2   = (1 + Gamma(8) + i G(3) + i G(11)) / 2
     SpinMatrix Tmixedminus();
 
+    //! T = (1 + \Sigma_1)*(1 + gamma_4) / 2   = (1 + Gamma(8) - i G(1) - i G(14)) / 2
+    SpinMatrix Tmixedx();
+
+    //! T = (1 - \Sigma_1)*(1 + gamma_4) / 2   = (1 + Gamma(8) + i G(1) + i G(14)) / 2
+    SpinMatrix Tmixedxminus();
+
+    //! T = (1 + \Sigma_2)*(1 + gamma_4) / 2   = (1 + Gamma(8) + i G(2) + i G(13)) / 2
+    SpinMatrix Tmixedy();
+
+    //! T = (1 - \Sigma_2)*(1 + gamma_4) / 2   = (1 + Gamma(8) - i G(2) - i G(13)) / 2
+    SpinMatrix Tmixedyminus();
+
 
     //! T = (1 - \Sigma_3)*(1 - gamma_4) / 2   = (1 - Gamma(8) - i G(3) + i G(11)) / 2
     // Need to flip the spin for time reversal
@@ -109,6 +121,14 @@ namespace Chroma
     SpinMatrix TspinUp() ;
     //! T = (1 - i \gamma_5 \gamma_3 )/2 = 1/2 *( 1  + iG(11) )
     SpinMatrix TspinDown() ;
+    //! T = (1 + i \gamma_5 \gamma_1 )/2 = 1/2 *( 1  - iG(14) )
+    SpinMatrix TspinxUp() ;
+    //! T = (1 - i \gamma_5 \gamma_1 )/2 = 1/2 *( 1  + iG(14) )
+    SpinMatrix TspinxDown() ;
+    //! T = (1 + i \gamma_5 \gamma_2 )/2 = 1/2 *( 1  + iG(13) )
+    SpinMatrix TspinyUp() ;
+    //! T = (1 - i \gamma_5 \gamma_2 )/2 = 1/2 *( 1  - iG(13) )
+    SpinMatrix TspinyDown() ;
     //! T = i \gamma_5 (\gamma_1 + i \gamma_2 )
     SpinMatrix T_ig5XpiY();
     //! T = i \gamma_5 (\gamma_1 - i \gamma_2 )

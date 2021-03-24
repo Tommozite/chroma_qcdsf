@@ -50,6 +50,35 @@ namespace Chroma
 
 
 
+  namespace InlineBarSpecEnvQCDSFsmall
+  {
+    namespace
+    {
+	AbsInlineMeasurement* createMeasurement(XMLReader& xml_in,
+						const std::string& path)
+	{
+	    return new InlineBarspecQCDSFsmall(InlineBarspecParamsQCDSF(xml_in, path));
+	}
+
+	//! Local registration flag
+	bool registered = false;
+    }
+
+      const std::string name = "BARYON_SPECTRUM-QCDSF-SMALL";
+
+      //! Register all the factories
+      bool registerAll()
+      {
+	  bool success = true;
+	  if (! registered)
+	  {
+	      success &= TheInlineMeasurementFactory::Instance().registerObject(name, createMeasurement);
+	      registered = true;
+	  }
+	  return success;
+      }
+  }
+
   //! Reader for parameters
   void read(XMLReader& xml, const std::string& path, InlineBarspecParamsQCDSF::Param_t& param)
   {
@@ -952,8 +981,9 @@ namespace Chroma
 
       BaryonsQCDSF_t baryons;
       BaryonsQCDSF_t baryons_trev;
-      barhqlq_qcdsf_lime(sink_prop_2, sink_prop_1, sink_prop_3, named_obj.haveThird, phases, t0,
-			 bc_spec, params.param.time_rev, params.param.fwdbwd_average, baryons , baryons_trev);
+      bool smallFile=false;
+      barhqlq_qcdsf_lime(sink_prop_2, sink_prop_1, sink_prop_3, named_obj.haveThird, smallFile, phases, t0,
+                         bc_spec, params.param.time_rev, params.param.fwdbwd_average, baryons , baryons_trev);
 
       write(xml_pair,"baryon-number",baryons.barnum.size());
 
@@ -1003,6 +1033,348 @@ namespace Chroma
 		<< " secs" << std::endl;
 
     QDPIO::cout << InlineBarSpecEnvQCDSF::name << ": ran successfully" << std::endl;
+
+    END_CODE();
+  }
+
+    // Function call
+  void
+  InlineBarspecQCDSFsmall::operator()(unsigned long update_no,
+				      XMLWriter& xml_out)
+  {
+      if (params.lime_file != "")
+      {
+	  push(xml_out, "barspec-small");
+	  write(xml_out, "update_no", update_no);
+	  write(xml_out, "lime_file", params.lime_file);
+	  pop(xml_out);
+        
+	  func_lime(update_no, params.lime_file);
+      }
+      else
+      {
+	  QDPIO::cerr << "Error!! lime_file must be declared! " << std::endl;
+	  QDP_abort(1);
+      }
+  }
+
+    //
+    // LIME output
+    //
+  void
+  InlineBarspecQCDSFsmall::func_lime(unsigned long update_no,
+				     std::string& lime_file)
+  {
+      START_CODE();
+
+      StopWatch snoop;
+      snoop.reset();
+      snoop.start();
+
+      // Test and grab a reference to the gauge field
+      XMLBufferWriter gauge_xml;
+    try
+    {
+	TheNamedObjMap::Instance().getData< multi1d<LatticeColorMatrix> >(params.named_obj.gauge_id);
+	TheNamedObjMap::Instance().get(params.named_obj.gauge_id).getRecordXML(gauge_xml);
+    }
+    catch( std::bad_cast )
+    {
+	QDPIO::cerr << InlineBarSpecEnvQCDSFsmall::name << ": caught dynamic cast error"
+		    << std::endl;
+	QDP_abort(1);
+    }
+    catch (const std::string& e)
+    {
+	QDPIO::cerr << InlineBarSpecEnvQCDSFsmall::name << ": map call failed: " << e
+		    << std::endl;
+	QDP_abort(1);
+    }
+    const multi1d<LatticeColorMatrix>& u =
+	TheNamedObjMap::Instance().getData< multi1d<LatticeColorMatrix> >(params.named_obj.gauge_id);
+
+    XMLBufferWriter xml_qcdsf;
+
+    push(xml_qcdsf, "qcdsfDir");
+    write(xml_qcdsf, "type", "barspecsmallfn");
+    write(xml_qcdsf, "update_no", update_no);
+
+    QDPIO::cout <<         " BARSPEC-QCDSF-SMALL: Spectroscopy for Wilson-like fermions" << std::endl;
+    QDPIO::cout << std::endl << "            Gauge group: SU(" << Nc << ")" << std::endl;
+    QDPIO::cout << "     volume: " << Layout::lattSize()[0];
+    for (int i=1; i<Nd; ++i) {
+	QDPIO::cout << " x " << Layout::lattSize()[i];
+    }
+    QDPIO::cout << std::endl;
+
+    proginfo(xml_qcdsf);    // Print out basic program info
+
+    // Write out the input
+    params.write(xml_qcdsf, "Input");
+
+    // Write out the config info
+    write(xml_qcdsf, "Config_info", gauge_xml);
+
+    push(xml_qcdsf, "Output_version");
+    write(xml_qcdsf, "out_version", 15);
+    pop(xml_qcdsf);
+
+
+    // First calculate some gauge invariant observables just for info.
+    MesPlq(xml_qcdsf, "Observables", u);
+
+    // Keep an array of all the xml output buffers
+    // push(xml_qcdsf, "Wilson_hadron_measurements");
+
+    pop(xml_qcdsf);  // barspec
+
+
+
+    QLimeWriter limewriter( params.lime_file.c_str() );
+
+    QDPIO::cout << "writing LIME QCDSF header" << std::endl;
+    uint64_t hdrsize = xml_qcdsf.str().length();
+    limewriter.setRecordHeader( "qcdsfDir" , hdrsize , 1 , 0 );
+    limewriter.write( (void *)( xml_qcdsf.str().c_str() ) , hdrsize );
+    limewriter.endRecord();
+
+    // Now loop over the various fermion pairs
+    for(int lpair=0; lpair < params.named_obj.sink_pairs.size(); ++lpair)
+    {
+	bool lastSinkPair = (lpair == params.named_obj.sink_pairs.size()-1);
+	XMLBufferWriter xml_pair;
+
+	push( xml_pair , "sink_pair" );
+
+	const InlineBarspecParamsQCDSF::NamedObject_t::Props_t named_obj = params.named_obj.sink_pairs[lpair];
+
+	AllSinkProps_t all_sinks;
+	readAllSinks(all_sinks, named_obj);
+
+	// Derived from input prop
+	multi1d<int> t_srce
+	    = all_sinks.sink_prop_1.prop_header.source_header.getTSrce();
+	int j_decay = all_sinks.sink_prop_1.prop_header.source_header.j_decay;
+	int t0      = all_sinks.sink_prop_1.prop_header.source_header.t_source;
+
+	// Sanity checks
+	{
+	    if (all_sinks.sink_prop_2.prop_header.source_header.j_decay != j_decay)
+	    {
+		QDPIO::cerr << "Error!! j_decay must be the same for all propagators " << std::endl;
+		QDP_abort(1);
+	    }
+	    if (all_sinks.sink_prop_2.prop_header.source_header.t_source !=
+		all_sinks.sink_prop_1.prop_header.source_header.t_source)
+	    {
+		QDPIO::cerr << "Error!! t_source must be the same for all propagators " << std::endl;
+		QDP_abort(1);
+	    }
+	    if (all_sinks.sink_prop_1.source_type != all_sinks.sink_prop_2.source_type)
+	    {
+		QDPIO::cerr << "Error!! source_type must be the same in a pair " << std::endl;
+		QDP_abort(1);
+	    }
+	    if (all_sinks.sink_prop_1.sink_type != all_sinks.sink_prop_2.sink_type)
+	    {
+		QDPIO::cerr << "Error!! source_type must be the same in a pair " << std::endl;
+		QDP_abort(1);
+	    }
+	}
+
+	int bc_spec = 0;
+
+	bc_spec = all_sinks.sink_prop_1.bc[j_decay] ;
+	if (all_sinks.sink_prop_2.bc[j_decay] != bc_spec)
+        {
+	    QDPIO::cerr << "Error!! bc must be the same for all propagators " << std::endl;
+	    QDP_abort(1);
+        }
+
+
+
+	// Initialize the slow Fourier transform phases
+	SftMom phases(params.param.mom2_max, t_srce, params.param.avg_equiv_mom,
+		      j_decay);
+
+	// Keep a copy of the phases with NO momenta
+	SftMom phases_nomom(0, true, j_decay);
+
+	// Masses
+	write(xml_pair, "Mass_1", all_sinks.sink_prop_1.Mass);
+	write(xml_pair, "Mass_2", all_sinks.sink_prop_2.Mass);
+	if (named_obj.haveThird)
+	    write(xml_pair, "Mass_3", all_sinks.sink_prop_3.Mass);
+
+	write(xml_pair, "t0", t0);
+
+	// Save prop input
+	push(xml_pair, "Forward_prop_headers");
+	write(xml_pair, "First_forward_prop", all_sinks.sink_prop_1.prop_header);
+	write(xml_pair, "Second_forward_prop", all_sinks.sink_prop_2.prop_header);
+	if (named_obj.haveThird)
+	    write(xml_pair, "Third_forward_prop", all_sinks.sink_prop_3.prop_header);
+	pop(xml_pair);
+
+	// Sanity check - write out the norm2 of the forward prop in the j_decay direction
+	// Use this for any possible verification
+	push(xml_pair, "Forward_prop_correlator");
+	{
+        const LatticePropagator& sink_prop_1 =
+	    TheNamedObjMap::Instance().getData<LatticePropagator>(all_sinks.sink_prop_1.quark_propagator_id);
+        const LatticePropagator& sink_prop_2 =
+	    TheNamedObjMap::Instance().getData<LatticePropagator>(all_sinks.sink_prop_2.quark_propagator_id);
+        const LatticePropagator& sink_prop_3 =
+	    TheNamedObjMap::Instance().getData<LatticePropagator>(all_sinks.sink_prop_3.quark_propagator_id);
+
+        write(xml_pair, "forward_prop_corr_1", sumMulti(localNorm2(sink_prop_1), phases.getSet()));
+        write(xml_pair, "forward_prop_corr_2", sumMulti(localNorm2(sink_prop_2), phases.getSet()));
+        if (named_obj.haveThird)
+	    write(xml_pair, "forward_prop_corr_3", sumMulti(localNorm2(sink_prop_3), phases.getSet()));
+
+	}
+	pop(xml_pair);
+
+
+	push(xml_pair, "SourceSinkType");
+	{
+	    QDPIO::cout << "Source_type_1 = " << all_sinks.sink_prop_1.source_type << std::endl;
+	    QDPIO::cout << "Sink_type_1 = " << all_sinks.sink_prop_1.sink_type << std::endl;
+	    QDPIO::cout << "Source_type_2 = " << all_sinks.sink_prop_2.source_type << std::endl;
+	    QDPIO::cout << "Sink_type_2 = " << all_sinks.sink_prop_2.sink_type << std::endl;
+
+	    write(xml_pair, "source_type_1", all_sinks.sink_prop_1.source_type);
+	    write(xml_pair, "source_disp_type_1", all_sinks.sink_prop_1.source_disp_type);
+	    write(xml_pair, "sink_type_1", all_sinks.sink_prop_1.sink_type);
+	    write(xml_pair, "sink_disp_type_1", all_sinks.sink_prop_1.sink_disp_type);
+
+	    write(xml_pair, "source_type_2", all_sinks.sink_prop_2.source_type);
+	    write(xml_pair, "source_disp_type_2", all_sinks.sink_prop_2.source_disp_type);
+	    write(xml_pair, "sink_type_2", all_sinks.sink_prop_2.sink_type);
+	    write(xml_pair, "sink_disp_type_2", all_sinks.sink_prop_2.sink_disp_type);
+
+	    if (named_obj.haveThird) {
+		write(xml_pair, "source_type_3", all_sinks.sink_prop_3.source_type);
+		write(xml_pair, "source_disp_type_3", all_sinks.sink_prop_3.source_disp_type);
+		write(xml_pair, "sink_type_3", all_sinks.sink_prop_3.sink_type);
+		write(xml_pair, "sink_disp_type_3", all_sinks.sink_prop_3.sink_disp_type);
+	    }
+	}
+	pop(xml_pair);
+
+
+	// References for use later
+      const LatticePropagator& sink_prop_1 =
+	  TheNamedObjMap::Instance().getData<LatticePropagator>(all_sinks.sink_prop_1.quark_propagator_id);
+      const LatticePropagator& sink_prop_2 =
+	  TheNamedObjMap::Instance().getData<LatticePropagator>(all_sinks.sink_prop_2.quark_propagator_id);
+      const LatticePropagator& sink_prop_3 =
+	  TheNamedObjMap::Instance().getData<LatticePropagator>(all_sinks.sink_prop_3.quark_propagator_id);
+
+
+      // Construct group name for output
+      std::string src_type;
+      if (all_sinks.sink_prop_1.source_type == "POINT_SOURCE")
+	  src_type = "Point";
+      else if (all_sinks.sink_prop_1.source_type == "SF_POINT_SOURCE")
+	  src_type = "Point";
+      else if (all_sinks.sink_prop_1.source_type == "SHELL_SOURCE")
+	  src_type = "Shell";
+      else if (all_sinks.sink_prop_1.source_type == "NORM_SHELL_SOURCE")
+	  src_type = "Shell";
+      else if (all_sinks.sink_prop_1.source_type == "SF_SHELL_SOURCE")
+	  src_type = "Shell";
+      else if (all_sinks.sink_prop_1.source_type == "RESMEAR_SOURCE-QCDSF")
+	  src_type = "Shell";
+      else if (all_sinks.sink_prop_1.source_type == "WALL_SOURCE")
+	  src_type = "Wall";
+      else if (all_sinks.sink_prop_1.source_type == "SF_WALL_SOURCE")
+	  src_type = "Wall";
+      else if (all_sinks.sink_prop_1.source_type == "RAND_ZN_WALL_SOURCE")
+	  src_type = "Wall";
+      else if (all_sinks.sink_prop_1.source_type == "MOMENTUM_VOLUME_SOURCE")
+	  src_type = "Wall";
+      else
+      {
+	  QDPIO::cerr << "Unsupported source type = " << all_sinks.sink_prop_1.source_type << std::endl;
+	  QDP_abort(1);
+      }
+
+      std::string snk_type;
+      if (all_sinks.sink_prop_1.sink_type == "POINT_SINK")
+	  snk_type = "Point";
+      else if (all_sinks.sink_prop_1.sink_type == "SHELL_SINK")
+	  snk_type = "Shell";
+      else if (all_sinks.sink_prop_1.sink_type == "NORM_SHELL_SINK")
+	  snk_type = "Shell";
+      else if (all_sinks.sink_prop_1.sink_type == "RESMEAR_SINK-QCDSF")
+	  src_type = "Shell";
+      else if (all_sinks.sink_prop_1.sink_type == "WALL_SINK")
+	  snk_type = "Wall";
+      else
+      {
+	  QDPIO::cerr << "Unsupported sink type = " << all_sinks.sink_prop_1.sink_type << std::endl;
+	  QDP_abort(1);
+      }
+
+      std::string source_sink_type = src_type + "_" + snk_type;
+      QDPIO::cout << "Source type = " << src_type << std::endl;
+      QDPIO::cout << "Sink type = "   << snk_type << std::endl;
+
+      BaryonsQCDSF_t baryons;
+      BaryonsQCDSF_t baryons_trev;
+      bool smallFile=true;
+      barhqlq_qcdsf_lime(sink_prop_2, sink_prop_1, sink_prop_3, named_obj.haveThird, smallFile, phases, t0,
+                         bc_spec, params.param.time_rev, params.param.fwdbwd_average, baryons , baryons_trev);
+
+      write(xml_pair,"baryon-number",baryons.barnum.size());
+
+      pop( xml_pair );
+
+      hdrsize = xml_pair.str().length();
+      QDPIO::cout << "writing LIME record xml" << std::endl;
+      limewriter.setRecordHeader( "meta-xml" , hdrsize , 0 , 0 );
+      limewriter.write( (void *)( xml_pair.str().c_str() ) , hdrsize );
+      limewriter.endRecord();
+
+      // bool write_trev = !params.param.fwdbwd_average; // orig
+      bool write_trev = params.param.time_rev &&!params.param.fwdbwd_average;
+      {
+	  BinaryBufferWriter bar_bin;
+	  write( bar_bin , baryons );
+	  hdrsize = bar_bin.str().length();
+	  QDPIO::cout << "writing LIME binary data" << std::endl;
+	  limewriter.setRecordHeader( "baryons-bin" , hdrsize , 0 , (lastSinkPair && (!write_trev)) ? 1:0  );
+	  limewriter.write( (void *)( bar_bin.str().c_str() ) , hdrsize );
+	  limewriter.endRecord();
+      }
+
+      //if (!params.param.fwdbwd_average) // orig
+      if(params.param.time_rev && !params.param.fwdbwd_average)
+      {
+	  BinaryBufferWriter bar_bin;
+	  write( bar_bin , baryons_trev );
+	  hdrsize = bar_bin.str().length();
+	  QDPIO::cout << "writing LIME binary data" << std::endl;
+	  limewriter.setRecordHeader( "baryons-trev-bin" , hdrsize , 0 , lastSinkPair ? 1:0  );
+	  limewriter.write( (void *)( bar_bin.str().c_str() ) , hdrsize );
+	  limewriter.endRecord();
+      }
+
+
+      //pop(xml_pair);  // array element
+    }
+
+    //pop(xml_out);  // Wilson_spectroscopy
+
+    //
+
+    snoop.stop();
+    QDPIO::cout << InlineBarSpecEnvQCDSFsmall::name << ": total time = "
+                << snoop.getTimeInSeconds()
+                << " secs" << std::endl;
+
+    QDPIO::cout << InlineBarSpecEnvQCDSFsmall::name << ": ran successfully" << std::endl;
 
     END_CODE();
   }

@@ -31,9 +31,9 @@ namespace Chroma
 
       struct NamedObject_t
       {
-	Real             factorA;
+	Complex          factorA;
 	std::string      propA;    
-	Real             factorB;
+	Complex          factorB;
 	std::string      propB;   
 	std::string      propApB; 
       } named_obj;

@@ -16,9 +16,34 @@ namespace Chroma
   {
     XMLReader inputtop(xml, path);
 
-    read(inputtop, "factorA", input.factorA);
+    Real facAreal=1.0;
+    Real facAimag=0.0;
+
+    if (inputtop.count("factorAr") != 0)
+	read(inputtop, "factorAr", facAreal);
+    else
+	read(inputtop, "factorA", facAreal);
+
+    if (inputtop.count("factorAi") != 0)
+	read(inputtop, "factorAi", facAimag);
+
+    input.factorA = cmplx(facAreal,facAimag);
+
     read(inputtop, "propA", input.propA);
-    read(inputtop, "factorB", input.factorB);
+
+    Real facBreal=1.0;
+    Real facBimag=0.0;
+
+    if (inputtop.count("factorBr") != 0)
+	read(inputtop, "factorBr", facBreal);
+    else
+	read(inputtop, "factorB", facBreal);
+
+    if (inputtop.count("factorBi") != 0)
+	read(inputtop, "factorBi", facBimag);
+
+    input.factorB = cmplx(facBreal,facBimag);
+
     read(inputtop, "propB", input.propB);
     read(inputtop, "propApB", input.propApB);
   }

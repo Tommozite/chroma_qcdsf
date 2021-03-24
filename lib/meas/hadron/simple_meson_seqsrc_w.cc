@@ -317,6 +317,14 @@ namespace Chroma
       {
 	return new PionPionSeqSource(Params(xml_in, path));
       }
+        
+        
+        //Put some comments here
+        
+      HadronSeqSource<LatticePropagator>* seqSrcCurrent(XMLReader& xml_in, const std::string& path)
+        {
+            return new CurrentSeqSource(Params(xml_in, path));
+        }
 
 
       //! Local registration flag
@@ -332,6 +340,7 @@ namespace Chroma
       t_sink  = -1;
       sink_mom.resize(Nd-1);
       sink_mom = 0;
+      fix_operator = -1;
     }
 
 
@@ -347,7 +356,11 @@ namespace Chroma
       {
       case 1:
 	break;
-
+        
+      case 2:
+	{read(paramtop, "operator", fix_operator);}
+	break;
+	
       default:
 	QDPIO::cerr << __func__ << ": parameter version " << version 
 		    << " unsupported." << std::endl;
@@ -365,8 +378,9 @@ namespace Chroma
     {
       push(xml, path);
 
-      int version = 1;
-      write(xml, "version", version);
+      /*int version = 1;*/
+        
+        write(xml, "operator", fix_operator);
 
       write(xml, "j_decay", j_decay);
       write(xml, "t_sink", t_sink);
@@ -433,6 +447,8 @@ namespace Chroma
 
       return hsum[0][getTSink()];
     }
+      
+
 
 
     //! Construct the source
@@ -497,6 +513,131 @@ namespace Chroma
 
       return hsum[0][getTSink()];
     }
+      
+      
+      
+      //! Construct the source
+      LatticePropagator
+      CurrentSeqSource::operator()(const multi1d<LatticeColorMatrix>& u,
+                                    const multi1d<ForwardProp_t>& forward_headers,
+                                    const multi1d<LatticePropagator>& quark_propagators)
+      {
+          START_CODE();
+          
+          QDPIO::cout << "Fixed current sequential source" << std::endl;
+          setTSrce(forward_headers);
+          
+          if (quark_propagators.size() != 1)
+          {
+              QDPIO::cerr << __func__ << ": expect only 1 prop" << std::endl;
+              QDP_abort(1);
+          }
+          
+          LatticePropagator fin;
+          int my_operator = getOperator();
+          bool compute_nonlocal;
+          int gamma_value;
+          int mu;
+	  int opsign=1;
+	  int my_tsink = getTSink();
+          
+          switch(my_operator){
+              case 16:
+              case 17:
+              case 18:
+              case 19:
+		opsign=-1;
+		break;
+	  }
+          switch(my_operator){
+              case 16:
+              case 20:
+                  mu = 0;
+                  gamma_value=1;
+                  compute_nonlocal = true;
+                  break;
+              case 17:
+              case 21:
+                  mu = 1;
+                  gamma_value=2;
+                  compute_nonlocal = true;
+                  break;
+              case 18:
+              case 22:
+                  mu = 2;
+                  gamma_value=4;
+                  compute_nonlocal = true;
+                  break;
+              case 19:
+              case 23:
+                  mu = 3;
+                  gamma_value=8;
+                  compute_nonlocal = true;
+                  break;
+              default:
+                  mu = -1;
+                  gamma_value=my_operator;
+                  compute_nonlocal = false;
+          }
+          
+
+          
+          if( compute_nonlocal)
+          {
+          
+              // The non-local form of J_mu = (1/2)*[psibar(x+mu)*U^dag_mu*(1+gamma_mu)*psi(x) -
+              //                           psibar(x)*U_mu*(1-gamma_mu)*psi(x+mu)]
+              
+              SpinMatrix      g_one =  1.0;
+              LatticeComplex     ph = conj(phases());
+              
+              //LatticePropagator tmp1 = (adj(u[mu])*g_one+adj(u[mu])*Gamma(gamma_value))*quark_propagators[0];
+              LatticePropagator tmp1 = adj(u[mu])*(quark_propagators[0]+Gamma(gamma_value)*quark_propagators[0]);
+	      LatticePropagator tmpi = tmp1 * ph;
+	      if ( my_tsink != -1 )
+		  tmpi = project(tmpi);
+		  
+              LatticePropagator fin1 = shift(tmpi, BACKWARD, mu);
+              
+              //LatticePropagator tmp2 = (u[mu]*g_one-u[mu]*Gamma(gamma_value))*shift(quark_propagators[0],FORWARD,mu);
+              LatticePropagator tmp2 = u[mu]*(shift(quark_propagators[0],FORWARD,mu)-Gamma(gamma_value)*shift(quark_propagators[0],FORWARD,mu));
+              LatticePropagator fin2 = tmp2 * ph;
+	      if ( my_tsink != -1 )
+		  fin2 = project(fin2);
+	      
+              fin = Real(0.5)*(fin1 + opsign*fin2);
+              
+          }
+          else
+          {
+              
+              //    LatticePropagator tmp = operator* quark_propagators[0];
+              
+              LatticePropagator tmp = Gamma(gamma_value)*quark_propagators[0];
+              LatticeComplex     ph = conj(phases());
+              fin = tmp * ph;
+	      if ( my_tsink != -1 )
+		  fin = project(fin);
+          }
+          
+          END_CODE();
+          
+          return fin;
+      }
+      
+      
+      // Compute the 2-pt at the sink
+      Complex
+      CurrentSeqSource::twoPtSink(const multi1d<LatticeColorMatrix>& u,
+                                   const multi1d<ForwardProp_t>& forward_headers,
+                                   const multi1d<LatticePropagator>& quark_propagators,
+                                   int gamma_insertion)
+      {
+          
+          return 1.;
+      }
+      
+      
 
 
     //! Register all the factories
@@ -560,6 +701,10 @@ namespace Chroma
 	// keep for historical purposes
 	success &= Chroma::TheWilsonHadronSeqSourceFactory::Instance().registerObject(std::string("pion"),
 										      mesPion1Pion1SeqSrc);
+          
+    //new
+    success &= Chroma::TheWilsonHadronSeqSourceFactory::Instance().registerObject(std::string("SEQSRC_CURRENT"),
+                                                                                        seqSrcCurrent);
 
 	registered = true;
       }

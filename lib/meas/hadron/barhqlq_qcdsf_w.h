@@ -53,6 +53,7 @@ namespace Chroma
 			  const LatticePropagator& propagator_2,
 			  const LatticePropagator& propagator_3,
 			  const bool & haveThird,
+			  const bool & smallFile,
 			  const SftMom& phases,
 			  int t0, int bc_spec, bool time_rev, bool fwdbwd_average,
 			  BaryonsQCDSF_t& bar,
@@ -64,6 +65,13 @@ namespace Chroma
 		     const bool & haveThird,
 		     const SftMom& phases,
 		     multi3d<DComplex>& barprop);
+
+  void barhqlq_qcdsf_small(const LatticePropagator& propagator_1,
+			   const LatticePropagator& propagator_2,
+			   const LatticePropagator& propagator_3,
+			   const bool & haveThird,
+			   const SftMom& phases,
+			   multi3d<DComplex>& barprop);
 
 
 }

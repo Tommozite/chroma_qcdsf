@@ -272,11 +272,16 @@ namespace Chroma
       pop(xml_out);
 
       // A sanity check
-      if (params.param.t_sink < 0 || params.param.t_sink >= QDP::Layout::lattSize()[j_decay])
+      if (params.param.t_sink >= QDP::Layout::lattSize()[j_decay])
       {
 	QDPIO::cerr << "Sink time coordinate incorrect." << std::endl;
 	QDPIO::cerr << "t_sink = " << params.param.t_sink << std::endl;
 	QDP_abort(1);
+      }
+      if (params.param.t_sink < 0)
+      {
+	QDPIO::cout << "WARNING: Sink will be placed at all times." << std::endl;
+	QDPIO::cout << "t_sink = " << params.param.t_sink << std::endl;
       }
 
 
