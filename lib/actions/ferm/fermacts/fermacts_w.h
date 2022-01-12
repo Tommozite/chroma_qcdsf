@@ -21,6 +21,7 @@
 #include "eoprec_wilson_fermact_w.h"
 #include "eoprec_parwilson_fermact_w.h"
 #include "eoprec_clover_fermact_w.h"
+#include "eoprec_clover_fh_fermact_w.h"
 #include "eoprec_slic_fermact_w.h"
 #include "eoprec_slrc_fermact_w.h"
 

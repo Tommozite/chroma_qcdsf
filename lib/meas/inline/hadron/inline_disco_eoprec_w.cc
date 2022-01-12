@@ -329,9 +329,15 @@ namespace Chroma{
         WilsonFermActParams wp(fermacttop,param.action.path);
         return new EvenOddPrecWilsonLinOp(state,wp.Mass,wp.anisoParam ) ;
       }
-      else if(param.action.id == "CLOVER"){
+      else if(param.action.id ==
+	      "CLOVER"){
         CloverFermActParams cp(fermacttop,param.action.path);
         return new EvenOddPrecCloverLinOp(state,cp) ;
+      }
+      else if(param.action.id ==
+	      "CLOVER_FH"){
+        CloverFermActParams cp(fermacttop,param.action.path);
+        return new EvenOddPrecCloverFHLinOp(state,cp) ;
       }
       else{
 	QDPIO::cout<<name<<" : Tough luck dude! No code for you..."<<std::endl ;

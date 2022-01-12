@@ -3,8 +3,8 @@
  *  \brief Wilson Dslash linear operator
  */
 
-#ifndef __lwldslash_h__
-#define __lwldslash_h__
+#ifndef __lwldslash_fh_h__
+#define __lwldslash_fh_h__
 
 #include "state.h"
 #include "io/aniso_io.h"
@@ -43,22 +43,22 @@ namespace Chroma
    */
 
     template <typename T, typename P, typename Q>
-    class QDPWilsonDslashT : public WilsonDslashBase<T, P, Q>
+    class QDPWilsonDslashFHT : public WilsonDslashBase<T, P, Q>
     {
     public:
         //! Empty constructor. Must use create later
-        QDPWilsonDslashT();
+        QDPWilsonDslashFHT();
 
         //! Full constructor
-        QDPWilsonDslashT(Handle<FermState<T, P, Q>> state);
+        QDPWilsonDslashFHT(Handle<FermState<T, P, Q>> state);
 
         //! Full constructor with anisotropy
-        QDPWilsonDslashT(Handle<FermState<T, P, Q>> state,
-                         const AnisoParam_t &aniso_);
+        QDPWilsonDslashFHT(Handle<FermState<T, P, Q>> state,
+                           const AnisoParam_t &aniso_);
 
         //! Full constructor with general coefficients
-        QDPWilsonDslashT(Handle<FermState<T, P, Q>> state,
-                         const multi1d<Real> &coeffs_);
+        QDPWilsonDslashFHT(Handle<FermState<T, P, Q>> state,
+                           const multi1d<Real> &coeffs_);
 
         //! Creation routine
         void create(Handle<FermState<T, P, Q>> state);
@@ -72,7 +72,7 @@ namespace Chroma
                     const multi1d<Real> &coeffs_);
 
         //! No real need for cleanup here
-        ~QDPWilsonDslashT() {}
+        ~QDPWilsonDslashFHT() {}
 
         /**
      * Apply a dslash
@@ -129,34 +129,34 @@ namespace Chroma
 
     //! Empty constructor
     template <typename T, typename P, typename Q>
-    QDPWilsonDslashT<T, P, Q>::QDPWilsonDslashT() {}
+    QDPWilsonDslashFHT<T, P, Q>::QDPWilsonDslashFHT() {}
 
     //! Full constructor
     template <typename T, typename P, typename Q>
-    QDPWilsonDslashT<T, P, Q>::QDPWilsonDslashT(Handle<FermState<T, P, Q>> state)
+    QDPWilsonDslashFHT<T, P, Q>::QDPWilsonDslashFHT(Handle<FermState<T, P, Q>> state)
     {
         create(state);
     }
 
     //! Full constructor with anisotropy
     template <typename T, typename P, typename Q>
-    QDPWilsonDslashT<T, P, Q>::QDPWilsonDslashT(Handle<FermState<T, P, Q>> state,
-                                                const AnisoParam_t &aniso_)
+    QDPWilsonDslashFHT<T, P, Q>::QDPWilsonDslashFHT(Handle<FermState<T, P, Q>> state,
+                                                    const AnisoParam_t &aniso_)
     {
         create(state, aniso_);
     }
 
     //! Full constructor with general coefficients
     template <typename T, typename P, typename Q>
-    QDPWilsonDslashT<T, P, Q>::QDPWilsonDslashT(Handle<FermState<T, P, Q>> state,
-                                                const multi1d<Real> &coeffs_)
+    QDPWilsonDslashFHT<T, P, Q>::QDPWilsonDslashFHT(Handle<FermState<T, P, Q>> state,
+                                                    const multi1d<Real> &coeffs_)
     {
         create(state, coeffs_);
     }
 
     //! Creation routine
     template <typename T, typename P, typename Q>
-    void QDPWilsonDslashT<T, P, Q>::create(Handle<FermState<T, P, Q>> state)
+    void QDPWilsonDslashFHT<T, P, Q>::create(Handle<FermState<T, P, Q>> state)
     {
         multi1d<Real> cf(Nd);
         cf = 1.0;
@@ -165,8 +165,8 @@ namespace Chroma
 
     //! Creation routine with anisotropy
     template <typename T, typename P, typename Q>
-    void QDPWilsonDslashT<T, P, Q>::create(Handle<FermState<T, P, Q>> state,
-                                           const AnisoParam_t &anisoParam)
+    void QDPWilsonDslashFHT<T, P, Q>::create(Handle<FermState<T, P, Q>> state,
+                                             const AnisoParam_t &anisoParam)
     {
         START_CODE();
 
@@ -177,8 +177,8 @@ namespace Chroma
 
     //! Full constructor with general coefficients
     template <typename T, typename P, typename Q>
-    void QDPWilsonDslashT<T, P, Q>::create(Handle<FermState<T, P, Q>> state,
-                                           const multi1d<Real> &coeffs_)
+    void QDPWilsonDslashFHT<T, P, Q>::create(Handle<FermState<T, P, Q>> state,
+                                             const multi1d<Real> &coeffs_)
     {
         //QDPIO::cout << "Setting up QDP Wilson Dslash\n";
 
@@ -191,7 +191,7 @@ namespace Chroma
         // Sanity check
         if (fbc.operator->() == 0)
         {
-            QDPIO::cerr << "QDPWilsonDslash: error: fbc is null" << std::endl;
+            QDPIO::cerr << "QDPWilsonDslashFH: error: fbc is null" << std::endl;
             QDP_abort(1);
         }
 
@@ -223,8 +223,8 @@ namespace Chroma
    */
     template <typename T, typename P, typename Q>
     void
-    QDPWilsonDslashT<T, P, Q>::apply(T &chi, const T &psi,
-                                     enum PlusMinus isign, int cb) const
+    QDPWilsonDslashFHT<T, P, Q>::apply(T &chi, const T &psi,
+                                       enum PlusMinus isign, int cb) const
     {
         START_CODE();
 #if (QDP_NC == 2) || (QDP_NC == 3)
@@ -250,33 +250,54 @@ namespace Chroma
         switch (isign)
         {
         case PLUS:
-                            chi[rb[cb]] = spinReconstructDir0Minus(u[0] * shift(spinProjectDir0Minus(psi), FORWARD, 0)) + spinReconstructDir0Plus(shift(adj(u[0]) * spinProjectDir0Plus(psi), BACKWARD, 0))
-                #if QDP_ND >= 2
-                                          + spinReconstructDir1Minus(u[1] * shift(spinProjectDir1Minus(psi), FORWARD, 1)) + spinReconstructDir1Plus(shift(adj(u[1]) * spinProjectDir1Plus(psi), BACKWARD, 1))
-                #endif
-                #if QDP_ND >= 3
-                                          + spinReconstructDir2Minus(u[2] * shift(spinProjectDir2Minus(psi), FORWARD, 2)) + spinReconstructDir2Plus(shift(adj(u[2]) * spinProjectDir2Plus(psi), BACKWARD, 2))
-                #endif
-                #if QDP_ND >= 4
-                                          + spinReconstructDir3Minus(u[3] * shift(spinProjectDir3Minus(psi), FORWARD, 3)) + spinReconstructDir3Plus(shift(adj(u[3]) * spinProjectDir3Plus(psi), BACKWARD, 3))
-                #endif
-                #if QDP_ND >= 5
-                #error "Unsupported number of dimensions"
-                #endif
+            chi[rb[cb]] = u[0] * shift(spinProjectDir0MinusFull(psi), FORWARD, 0) + shift(adj(u[0]) * spinProjectDir0PlusFull(psi), BACKWARD, 0)
+#if QDP_ND >= 2
+                          + u[1] * shift(spinProjectDir1MinusFull(psi), FORWARD, 1) + shift(adj(u[1]) * spinProjectDir1PlusFull(psi), BACKWARD, 1)
+#endif
+#if QDP_ND >= 3
+                          + u[2] * shift(spinProjectDir2MinusFull(psi), FORWARD, 2) + shift(adj(u[2]) * spinProjectDir2PlusFull(psi), BACKWARD, 2)
+#endif
+#if QDP_ND >= 4
+                          + u[3] * shift(spinProjectDir3MinusFull(psi), FORWARD, 3) + shift(adj(u[3]) * spinProjectDir3PlusFull(psi), BACKWARD, 3)
+#endif
+
+                //             chi[rb[cb]] = spinReconstructDir0Minus(u[0] * shift(spinProjectDir0Minus(psi), FORWARD, 0)) + spinReconstructDir0Plus(shift(adj(u[0]) * spinProjectDir0Plus(psi), BACKWARD, 0))
+                // #if QDP_ND >= 2
+                //                           + spinReconstructDir1Minus(u[1] * shift(spinProjectDir1Minus(psi), FORWARD, 1)) + spinReconstructDir1Plus(shift(adj(u[1]) * spinProjectDir1Plus(psi), BACKWARD, 1))
+                // #endif
+                // #if QDP_ND >= 3
+                //                           + spinReconstructDir2Minus(u[2] * shift(spinProjectDir2Minus(psi), FORWARD, 2)) + spinReconstructDir2Plus(shift(adj(u[2]) * spinProjectDir2Plus(psi), BACKWARD, 2))
+                // #endif
+                // #if QDP_ND >= 4
+                //                           + spinReconstructDir3Minus(u[3] * shift(spinProjectDir3Minus(psi), FORWARD, 3)) + spinReconstructDir3Plus(shift(adj(u[3]) * spinProjectDir3Plus(psi), BACKWARD, 3))
+                // #endif
+                // #if QDP_ND >= 5
+                // #error "Unsupported number of dimensions"
+                // #endif
                 ;
             break;
 
-        case MINUS:            
-            chi[rb[cb]] = spinReconstructDir0Plus(u[0] * shift(spinProjectDir0Plus(psi), FORWARD, 0)) + spinReconstructDir0Minus(shift(adj(u[0]) * spinProjectDir0Minus(psi), BACKWARD, 0))
+        case MINUS:
+            chi[rb[cb]] = u[0] * shift(spinProjectDir0PlusFull(psi), FORWARD, 0) + shift(adj(u[0]) * spinProjectDir0MinusFull(psi), BACKWARD, 0)
 #if QDP_ND >= 2
-                          + spinReconstructDir1Plus(u[1] * shift(spinProjectDir1Plus(psi), FORWARD, 1)) + spinReconstructDir1Minus(shift(adj(u[1]) * spinProjectDir1Minus(psi), BACKWARD, 1))
+                          + u[1] * shift(spinProjectDir1PlusFull(psi), FORWARD, 1) + shift(adj(u[1]) * spinProjectDir1MinusFull(psi), BACKWARD, 1)
 #endif
 #if QDP_ND >= 3
-                          + spinReconstructDir2Plus(u[2] * shift(spinProjectDir2Plus(psi), FORWARD, 2)) + spinReconstructDir2Minus(shift(adj(u[2]) * spinProjectDir2Minus(psi), BACKWARD, 2))
+                          + u[2] * shift(spinProjectDir2PlusFull(psi), FORWARD, 2) + shift(adj(u[2]) * spinProjectDir2MinusFull(psi), BACKWARD, 2)
 #endif
 #if QDP_ND >= 4
-                          + spinReconstructDir3Plus(u[3] * shift(spinProjectDir3Plus(psi), FORWARD, 3)) + spinReconstructDir3Minus(shift(adj(u[3]) * spinProjectDir3Minus(psi), BACKWARD, 3))
+                          + u[3] * shift(spinProjectDir3PlusFull(psi), FORWARD, 3) + shift(adj(u[3]) * spinProjectDir3MinusFull(psi), BACKWARD, 3)
 #endif
+//             chi[rb[cb]] = spinReconstructDir0Plus(u[0] * shift(spinProjectDir0Plus(psi), FORWARD, 0)) + spinReconstructDir0Minus(shift(adj(u[0]) * spinProjectDir0Minus(psi), BACKWARD, 0))
+// #if QDP_ND >= 2
+//                           + spinReconstructDir1Plus(u[1] * shift(spinProjectDir1Plus(psi), FORWARD, 1)) + spinReconstructDir1Minus(shift(adj(u[1]) * spinProjectDir1Minus(psi), BACKWARD, 1))
+// #endif
+// #if QDP_ND >= 3
+//                           + spinReconstructDir2Plus(u[2] * shift(spinProjectDir2Plus(psi), FORWARD, 2)) + spinReconstructDir2Minus(shift(adj(u[2]) * spinProjectDir2Minus(psi), BACKWARD, 2))
+// #endif
+// #if QDP_ND >= 4
+//                           + spinReconstructDir3Plus(u[3] * shift(spinProjectDir3Plus(psi), FORWARD, 3)) + spinReconstructDir3Minus(shift(adj(u[3]) * spinProjectDir3Minus(psi), BACKWARD, 3))
+// #endif
 #if QDP_ND >= 5
 #error "Unsupported number of dimensions"
 #endif
@@ -284,29 +305,29 @@ namespace Chroma
             break;
         }
 
-        QDPWilsonDslashT<T, P, Q>::getFermBC().modifyF(chi, QDP::rb[cb]);
+        QDPWilsonDslashFHT<T, P, Q>::getFermBC().modifyF(chi, QDP::rb[cb]);
 #else
         QDPIO::cerr
-            << "lwldslash_w: not implemented for NC!=3\n";
+            << "lwldslash_w_fh: not implemented for NC!=3\n";
         QDP_abort(13);
 #endif
         END_CODE();
     }
 
-    typedef QDPWilsonDslashT<LatticeFermion,
-                             multi1d<LatticeColorMatrix>,
-                             multi1d<LatticeColorMatrix>>
-        QDPWilsonDslash;
+    typedef QDPWilsonDslashFHT<LatticeFermion,
+                               multi1d<LatticeColorMatrix>,
+                               multi1d<LatticeColorMatrix>>
+        QDPWilsonDslashFH;
 
-    typedef QDPWilsonDslashT<LatticeFermionF,
-                             multi1d<LatticeColorMatrixF>,
-                             multi1d<LatticeColorMatrixF>>
-        QDPWilsonDslashF;
+    typedef QDPWilsonDslashFHT<LatticeFermionF,
+                               multi1d<LatticeColorMatrixF>,
+                               multi1d<LatticeColorMatrixF>>
+        QDPWilsonDslashFHF;
 
-    typedef QDPWilsonDslashT<LatticeFermionD,
-                             multi1d<LatticeColorMatrixD>,
-                             multi1d<LatticeColorMatrixD>>
-        QDPWilsonDslashD;
+    typedef QDPWilsonDslashFHT<LatticeFermionD,
+                               multi1d<LatticeColorMatrixD>,
+                               multi1d<LatticeColorMatrixD>>
+        QDPWilsonDslashFHD;
 
 } // End Namespace Chroma
 

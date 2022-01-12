@@ -3,11 +3,11 @@
  *  \brief Even-odd preconditioned Wilson fermion linear operator
  */
 
-#ifndef __eoprec_wilson_linop_w_h__
-#define __eoprec_wilson_linop_w_h__
+#ifndef __eoprec_wilson_fh_linop_w_h__
+#define __eoprec_wilson_fh_linop_w_h__
 
 #include "eoprec_constdet_linop.h"
-#include "actions/ferm/linop/dslash_w.h"
+#include "actions/ferm/linop/dslash_fh_w.h"
 #include "io/aniso_io.h"
 
 namespace Chroma
@@ -23,8 +23,8 @@ namespace Chroma
    *      M  =  (d+M) - (1/2) D'
    */
 
-    class EvenOddPrecWilsonLinOp : public EvenOddPrecConstDetLinearOperator<LatticeFermion,
-                                                                            multi1d<LatticeColorMatrix>, multi1d<LatticeColorMatrix>>
+    class EvenOddPrecWilsonFHLinOp : public EvenOddPrecConstDetLinearOperator<LatticeFermion,
+                                                                              multi1d<LatticeColorMatrix>, multi1d<LatticeColorMatrix>>
     {
     public:
         // Typedefs to save typing
@@ -33,33 +33,33 @@ namespace Chroma
         typedef multi1d<LatticeColorMatrix> Q;
 
         //! Partial constructor
-        EvenOddPrecWilsonLinOp() {}
+        EvenOddPrecWilsonFHLinOp() {}
 
         //! Full constructor
-        EvenOddPrecWilsonLinOp(Handle<FermState<T, P, Q>> fs,
-                               const Real &Mass_)
+        EvenOddPrecWilsonFHLinOp(Handle<FermState<T, P, Q>> fs,
+                                 const Real &Mass_)
         {
             create(fs, Mass_);
         }
 
         //! Full constructor with Anisotropy
-        EvenOddPrecWilsonLinOp(Handle<FermState<T, P, Q>> fs,
-                               const Real &Mass_,
-                               const AnisoParam_t &aniso)
+        EvenOddPrecWilsonFHLinOp(Handle<FermState<T, P, Q>> fs,
+                                 const Real &Mass_,
+                                 const AnisoParam_t &aniso)
         {
             create(fs, Mass_, aniso);
         }
 
         //! Full constructor with array of coefficients
-        EvenOddPrecWilsonLinOp(Handle<FermState<T, P, Q>> fs,
-                               const Real &Mass_,
-                               const multi1d<Real> &coeffs_)
+        EvenOddPrecWilsonFHLinOp(Handle<FermState<T, P, Q>> fs,
+                                 const Real &Mass_,
+                                 const multi1d<Real> &coeffs_)
         {
             create(fs, Mass_, coeffs_);
         }
 
         //! Destructor is automatic
-        ~EvenOddPrecWilsonLinOp() {}
+        ~EvenOddPrecWilsonFHLinOp() {}
 
         //! Return the fermion BC object for this linear operator
         const FermBC<T, P, Q> &getFermBC() const { return D.getFermBC(); }
@@ -155,7 +155,7 @@ namespace Chroma
         Real fact;    /*<! tmp holding  Nd+Mass */
         Real invfact; /*!< tmp holding  1/(Nd+Mass) */
 
-        WilsonDslash D; /*!< Wilson dslash term */
+        WilsonDslashFH D; /*!< Wilson dslash term */
     };
 
 } // End Namespace Chroma

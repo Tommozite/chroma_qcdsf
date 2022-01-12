@@ -472,6 +472,7 @@ nobase_include_HEADERS += \
 	actions/ferm/fermacts/clover_fermact_params_w.h \
 	actions/ferm/fermacts/slrc_feynhell_fermact_params_w.h \
 	actions/ferm/fermacts/eoprec_clover_fermact_w.h \
+	actions/ferm/fermacts/eoprec_clover_fh_fermact_w.h \
 	actions/ferm/fermacts/eoprec_clover_orbifold_fermact_w.h \
 	actions/ferm/fermacts/unprec_clover_fermact_w.h \
 	actions/ferm/fermacts/nef_fermact_params_w.h \
@@ -558,7 +559,9 @@ nobase_include_HEADERS += \
 	actions/ferm/linop/unprec_ovlap_contfrac5d_pv_linop_array_w.h \
 	actions/ferm/linop/unprec_ht_contfrac5d_linop_array_w.h \
 	actions/ferm/linop/eoprec_ht_contfrac5d_linop_array_w.h \
-	actions/ferm/linop/dslash_w.h actions/ferm/linop/dwffld_w.h \
+	actions/ferm/linop/dslash_w.h \
+	actions/ferm/linop/dslash_fh_w.h \
+	actions/ferm/linop/dwffld_w.h \
 	actions/ferm/linop/dslash_array_w.h \
 	actions/ferm/linop/linop_w.h \
 	actions/ferm/linop/lovddag_w.h \
@@ -570,6 +573,7 @@ nobase_include_HEADERS += \
 	actions/ferm/linop/lDeltaLs_w.h \
 	actions/ferm/linop/lwldslash_base_w.h \
 	actions/ferm/linop/lwldslash_w.h \
+	actions/ferm/linop/lwldslash_fh_w.h \
 	actions/ferm/linop/lwldslash_qdpopt_w.h \
 	actions/ferm/linop/lwldslash_base_array_w.h \
 	actions/ferm/linop/lwldslash_array_w.h \
@@ -580,6 +584,7 @@ nobase_include_HEADERS += \
 	actions/ferm/linop/clover_term_base_w.h \
 	actions/ferm/linop/clover_term_qdp_w.h \
 	actions/ferm/linop/eoprec_clover_linop_w.h \
+	actions/ferm/linop/eoprec_clover_fh_linop_w.h \
 	actions/ferm/linop/eoprec_clover_dumb_linop_w.h \
 	actions/ferm/linop/eoprec_slrc_dumb_linop_w_qcdsf.h \
 	actions/ferm/linop/eoprec_clover_orbifold_linop_w.h \
@@ -1493,6 +1498,7 @@ libchroma_a_SOURCES += \
 	actions/ferm/fermacts/clover_fermact_params_w.cc \
 	actions/ferm/fermacts/slrc_feynhell_fermact_params_w.cc \
 	actions/ferm/fermacts/eoprec_clover_fermact_w.cc \
+	actions/ferm/fermacts/eoprec_clover_fh_fermact_w.cc \
 	actions/ferm/fermacts/eoprec_clover_orbifold_fermact_w.cc \
 	actions/ferm/fermacts/unprec_clover_fermact_w.cc \
 	actions/ferm/fermacts/unprec_slrc_fermact_w.cc \
@@ -1555,6 +1561,7 @@ libchroma_a_SOURCES += \
 	actions/ferm/linop/lovlap_double_pass_w.cc \
 	actions/ferm/linop/lwldslash_base_w.cc \
 	actions/ferm/linop/lwldslash_w.cc \
+	actions/ferm/linop/lwldslash_fh_w.cc \
 	actions/ferm/linop/lwldslash_qdpopt_w.cc\
 	actions/ferm/linop/lwldslash_base_array_w.cc \
 	actions/ferm/linop/lwldslash_array_w.cc \
@@ -1591,6 +1598,7 @@ libchroma_a_SOURCES += \
 	actions/ferm/linop/clover_term_base_w.cc \
 	actions/ferm/linop/clover_term_qdp_w.cc \
 	actions/ferm/linop/eoprec_clover_linop_w.cc \
+	actions/ferm/linop/eoprec_clover_fh_linop_w.cc \
 	actions/ferm/linop/eoprec_clover_dumb_linop_w.cc \
 	actions/ferm/linop/eoprec_slrc_dumb_linop_w_qcdsf.cc \
 	actions/ferm/linop/eoprec_clover_orbifold_linop_w.cc \

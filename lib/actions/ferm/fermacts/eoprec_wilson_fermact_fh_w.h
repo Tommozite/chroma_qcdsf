@@ -14,7 +14,7 @@ namespace Chroma
 {
     //! Name and registration
     /*! \ingroup fermacts */
-    namespace EvenOddPrecWilsonFermActEnv
+    namespace EvenOddPrecWilsonFermActFHEnv
     {
         extern const std::string name;
         bool registerAll();
@@ -26,8 +26,8 @@ namespace Chroma
    * Even-odd preconditioned wilson fermion action. 
    * Only defined on odd subset.
    */
-    class EvenOddPrecWilsonFermAct : public EvenOddPrecConstDetWilsonTypeFermAct<LatticeFermion,
-                                                                                 multi1d<LatticeColorMatrix>, multi1d<LatticeColorMatrix>>
+    class EvenOddPrecWilsonFermActFH : public EvenOddPrecConstDetWilsonTypeFermAct<LatticeFermion,
+                                                                                   multi1d<LatticeColorMatrix>, multi1d<LatticeColorMatrix>>
     {
     public:
         // Typedefs to save typing
@@ -36,15 +36,15 @@ namespace Chroma
         typedef multi1d<LatticeColorMatrix> Q;
 
         //! General FermBC
-        EvenOddPrecWilsonFermAct(Handle<CreateFermState<T, P, Q>> cfs_,
-                                 const Real &Mass_) : cfs(cfs_) { param.Mass = Mass_; }
+        EvenOddPrecWilsonFermActFH(Handle<CreateFermState<T, P, Q>> cfs_,
+                                   const Real &Mass_) : cfs(cfs_) { param.Mass = Mass_; }
 
         //! General FermBC with Anisotropy
-        EvenOddPrecWilsonFermAct(Handle<CreateFermState<T, P, Q>> cfs_,
-                                 const WilsonFermActParams &param_) : cfs(cfs_), param(param_) {}
+        EvenOddPrecWilsonFermActFH(Handle<CreateFermState<T, P, Q>> cfs_,
+                                   const WilsonFermActParams &param_) : cfs(cfs_), param(param_) {}
 
         //! Copy constructor
-        EvenOddPrecWilsonFermAct(const EvenOddPrecWilsonFermAct &a) : cfs(a.cfs), param(a.param) {}
+        EvenOddPrecWilsonFermActFH(const EvenOddPrecWilsonFermActFH &a) : cfs(a.cfs), param(a.param) {}
 
         //! Produce a linear operator for this action
         EvenOddPrecConstDetLinearOperator<T, P, Q> *linOp(Handle<FermState<T, P, Q>> state) const;
@@ -64,7 +64,7 @@ namespace Chroma
                                        const GroupXML_t &invParam) const;
 
         //! Destructor is automatic
-        ~EvenOddPrecWilsonFermAct() {}
+        ~EvenOddPrecWilsonFermActFH() {}
 
         Double getQuarkMass(void) const
         {
@@ -76,9 +76,9 @@ namespace Chroma
         const CreateFermState<T, P, Q> &getCreateState() const { return *cfs; }
 
         //! Partial constructor
-        EvenOddPrecWilsonFermAct() {}
+        EvenOddPrecWilsonFermActFH() {}
         //! Assignment
-        void operator=(const EvenOddPrecWilsonFermAct &a) {}
+        void operator=(const EvenOddPrecWilsonFermActFH &a) {}
 
     private:
         Handle<CreateFermState<T, P, Q>> cfs;

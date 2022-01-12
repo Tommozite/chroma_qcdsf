@@ -25,6 +25,8 @@
 
 #include "eoprec_wilson_linop_w.h"
 #include "eoprec_clover_linop_w.h"
+// #include "eoprec_wilson_fh_linop_w.h"
+#include "eoprec_clover_fh_linop_w.h"
 #include "eoprec_parwilson_linop_w.h"
 
 #include "unprec_s_cprec_t_wilson_linop_w.h"
