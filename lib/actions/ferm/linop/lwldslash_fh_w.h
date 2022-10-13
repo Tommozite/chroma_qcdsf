@@ -8,42 +8,42 @@
 
 #include "state.h"
 #include "io/aniso_io.h"
-#include "actions/ferm/linop/lwldslash_base_w.h"
+#include "actions/ferm/linop/lwldslash_fh_base_w.h"
 
 namespace Chroma
 {
     //! General Wilson-Dirac dslash
     /*!
-   * \ingroup linop
-   *
-   * DSLASH
-   *
-   * This routine is specific to Wilson fermions!
-   *
-   * Description:
-   *
-   * This routine applies the operator D' to Psi, putting the result in Chi.
-   *
-   *	       Nd-1
-   *	       ---
-   *	       \
-   *   chi(x)  :=  >  U  (x) (1 - isign gamma  ) psi(x+mu)
-   *	       /    mu			  mu
-   *	       ---
-   *	       mu=0
-   *
-   *	             Nd-1
-   *	             ---
-   *	             \    +
-   *                +    >  U  (x-mu) (1 + isign gamma  ) psi(x-mu)
-   *	             /    mu			   mu
-   *	             ---
-   *	             mu=0
-   *
-   */
+     * \ingroup linop
+     *
+     * DSLASH
+     *
+     * This routine is specific to Wilson fermions!
+     *
+     * Description:
+     *
+     * This routine applies the operator D' to Psi, putting the result in Chi.
+     *
+     *	       Nd-1
+     *	       ---
+     *	       \
+     *   chi(x)  :=  >  U  (x) (1 - isign gamma  ) psi(x+mu)
+     *	       /    mu			  mu
+     *	       ---
+     *	       mu=0
+     *
+     *	             Nd-1
+     *	             ---
+     *	             \    +
+     *                +    >  U  (x-mu) (1 + isign gamma  ) psi(x-mu)
+     *	             /    mu			   mu
+     *	             ---
+     *	             mu=0
+     *
+     */
 
     template <typename T, typename P, typename Q>
-    class QDPWilsonDslashFHT : public WilsonDslashBase<T, P, Q>
+    class QDPWilsonDslashFHT : public WilsonDslashFHBase<T, P, Q>
     {
     public:
         //! Empty constructor. Must use create later
@@ -75,15 +75,15 @@ namespace Chroma
         ~QDPWilsonDslashFHT() {}
 
         /**
-     * Apply a dslash
-     *
-     * \param chi     result                                      (Write)
-     * \param psi     source                                      (Read)
-     * \param isign   D'^dag or D'  ( MINUS | PLUS ) resp.        (Read)
-     * \param cb      Checkerboard of OUTPUT std::vector               (Read) 
-     *
-     * \return The output of applying dslash on psi
-     */
+         * Apply a dslash
+         *
+         * \param chi     result                                      (Write)
+         * \param psi     source                                      (Read)
+         * \param isign   D'^dag or D'  ( MINUS | PLUS ) resp.        (Read)
+         * \param cb      Checkerboard of OUTPUT std::vector               (Read)
+         *
+         * \return The output of applying dslash on psi
+         */
         void apply(T &chi, const T &psi, enum PlusMinus isign, int cb) const;
 
         //! Return the fermion BC object for this linear operator
@@ -101,31 +101,31 @@ namespace Chroma
 
     //! General Wilson-Dirac dslash
     /*! \ingroup linop
-   * DSLASH
-   *
-   * This routine is specific to Wilson fermions!
-   *
-   * Description:
-   *
-   * This routine applies the operator D' to Psi, putting the result in Chi.
-   *
-   *	       Nd-1
-   *	       ---
-   *	       \
-   *   chi(x)  :=  >  U  (x) (1 - isign gamma  ) psi(x+mu)
-   *	       /    mu			  mu
-   *	       ---
-   *	       mu=0
-   *
-   *	             Nd-1
-   *	             ---
-   *	             \    +
-   *                +    >  U  (x-mu) (1 + isign gamma  ) psi(x-mu)
-   *	             /    mu			   mu
-   *	             ---
-   *	             mu=0
-   *
-   */
+     * DSLASH
+     *
+     * This routine is specific to Wilson fermions!
+     *
+     * Description:
+     *
+     * This routine applies the operator D' to Psi, putting the result in Chi.
+     *
+     *	       Nd-1
+     *	       ---
+     *	       \
+     *   chi(x)  :=  >  U  (x) (1 - isign gamma  ) psi(x+mu)
+     *	       /    mu			  mu
+     *	       ---
+     *	       mu=0
+     *
+     *	             Nd-1
+     *	             ---
+     *	             \    +
+     *                +    >  U  (x-mu) (1 + isign gamma  ) psi(x-mu)
+     *	             /    mu			   mu
+     *	             ---
+     *	             mu=0
+     *
+     */
 
     //! Empty constructor
     template <typename T, typename P, typename Q>
@@ -180,7 +180,7 @@ namespace Chroma
     void QDPWilsonDslashFHT<T, P, Q>::create(Handle<FermState<T, P, Q>> state,
                                              const multi1d<Real> &coeffs_)
     {
-        //QDPIO::cout << "Setting up QDP Wilson Dslash\n";
+        // QDPIO::cout << "Setting up QDP Wilson Dslash\n";
 
         // Save a copy of the aniso params original fields and with aniso folded in
         coeffs = coeffs_;
@@ -212,15 +212,15 @@ namespace Chroma
 
     //! General Wilson-Dirac dslash
     /*! \ingroup linop
-   * Wilson dslash
-   *
-   * Arguments:
-   *
-   *  \param chi	      Result				                (Write)
-   *  \param psi	      Pseudofermion field				(Read)
-   *  \param isign      D'^dag or D' ( MINUS | PLUS ) resp.		(Read)
-   *  \param cb	      Checkerboard of OUTPUT std::vector			(Read) 
-   */
+     * Wilson dslash
+     *
+     * Arguments:
+     *
+     *  \param chi	      Result				                (Write)
+     *  \param psi	      Pseudofermion field				(Read)
+     *  \param isign      D'^dag or D' ( MINUS | PLUS ) resp.		(Read)
+     *  \param cb	      Checkerboard of OUTPUT std::vector			(Read)
+     */
     template <typename T, typename P, typename Q>
     void
     QDPWilsonDslashFHT<T, P, Q>::apply(T &chi, const T &psi,
@@ -228,25 +228,25 @@ namespace Chroma
     {
         START_CODE();
 #if (QDP_NC == 2) || (QDP_NC == 3)
-        /*     F 
-     *   a2  (x)  :=  U  (x) (1 - isign gamma  ) psi(x)
-     *     mu          mu                    mu
-     */
+        /*     F
+         *   a2  (x)  :=  U  (x) (1 - isign gamma  ) psi(x)
+         *     mu          mu                    mu
+         */
         /*     B           +
-     *   a2  (x)  :=  U  (x-mu) (1 + isign gamma  ) psi(x-mu)
-     *     mu          mu                       mu
-     */
+         *   a2  (x)  :=  U  (x-mu) (1 + isign gamma  ) psi(x-mu)
+         *     mu          mu                       mu
+         */
         // Recontruct the bottom two spinor components from the top two
         /*                        F           B
-     *   chi(x) :=  sum_mu  a2  (x)  +  a2  (x)
-     *                        mu          mu
-     */
+         *   chi(x) :=  sum_mu  a2  (x)  +  a2  (x)
+         *                        mu          mu
+         */
 
         /* Why are these lines split? An array syntax would help, but the problem is deeper.
-     * The expression templates require NO variable args (like int's) to a function
-     * and all args must be known at compile time. Hence, the function names carry
-     * (as functions usually do) the meaning (and implicit args) to a function.
-     */
+         * The expression templates require NO variable args (like int's) to a function
+         * and all args must be known at compile time. Hence, the function names carry
+         * (as functions usually do) the meaning (and implicit args) to a function.
+         */
         switch (isign)
         {
         case PLUS:
