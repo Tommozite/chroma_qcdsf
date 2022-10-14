@@ -44,7 +44,7 @@ namespace Chroma
     {
     public:
         //! No real need for cleanup here
-        virtual ~WilsonDslashBase() {}
+        virtual ~WilsonDslashFHBase() {}
 
         //! Subset is all here
         const Subset &subset() const { return all; }
@@ -111,9 +111,9 @@ namespace Chroma
      */
     template <typename T, typename P, typename Q>
     void
-    WilsonDslashBase<T, P, Q>::deriv(P &ds_u,
-                                     const T &chi, const T &psi,
-                                     enum PlusMinus isign) const
+    WilsonDslashFHBase<T, P, Q>::deriv(P &ds_u,
+                                       const T &chi, const T &psi,
+                                       enum PlusMinus isign) const
     {
         START_CODE();
 
@@ -131,9 +131,9 @@ namespace Chroma
     /*! \return Computes   \f$\chi^\dag * \dot(D} * \psi\f$  */
     template <typename T, typename P, typename Q>
     void
-    WilsonDslashBase<T, P, Q>::deriv(P &ds_u,
-                                     const T &chi, const T &psi,
-                                     enum PlusMinus isign, int cb) const
+    WilsonDslashFHBase<T, P, Q>::deriv(P &ds_u,
+                                       const T &chi, const T &psi,
+                                       enum PlusMinus isign, int cb) const
     {
         START_CODE();
 
@@ -156,19 +156,19 @@ namespace Chroma
                 {
                 case 0:
                     // tmp_h[rb[1 - cb]] = spinProjectDir0Minus(psi);
-                    temp_ferm1[rb[1 - cb]] = spinReconstructDir0MinusFull(tmp_h);
+                    temp_ferm1[rb[1 - cb]] = spinProjectDir0MinusFull(psi);
                     break;
                 case 1:
                     // tmp_h[rb[1 - cb]] = spinProjectDir1Minus(psi);
-                    temp_ferm1[rb[1 - cb]] = spinReconstructDir1MinusFull(tmp_h);
+                    temp_ferm1[rb[1 - cb]] = spinProjectDir1MinusFull(psi);
                     break;
                 case 2:
                     // tmp_h[rb[1 - cb]] = spinProjectDir2Minus(psi);
-                    temp_ferm1[rb[1 - cb]] = spinReconstructDir2MinusFull(tmp_h);
+                    temp_ferm1[rb[1 - cb]] = spinProjectDir2MinusFull(psi);
                     break;
                 case 3:
                     // tmp_h[rb[1 - cb]] = spinProjectDir3Minus(psi);
-                    temp_ferm1[rb[1 - cb]] = spinReconstructDir3MinusFull(tmp_h);
+                    temp_ferm1[rb[1 - cb]] = spinProjectDir3MinusFull(psi);
                     break;
                 default:
                     break;
@@ -184,19 +184,19 @@ namespace Chroma
                 {
                 case 0:
                     // tmp_h[rb[1 - cb]] = spinProjectDir0Plus(psi);
-                    temp_ferm1[rb[1 - cb]] = spinReconstructDir0PlusFull(tmp_h);
+                    temp_ferm1[rb[1 - cb]] = spinProjectDir0PlusFull(psi);
                     break;
                 case 1:
                     // tmp_h[rb[1 - cb]] = spinProjectDir1Plus(psi);
-                    temp_ferm1[rb[1 - cb]] = spinReconstructDir1PlusFull(tmp_h);
+                    temp_ferm1[rb[1 - cb]] = spinProjectDir1PlusFull(psi);
                     break;
                 case 2:
                     // tmp_h[rb[1 - cb]] = spinProjectDir2Plus(psi);
-                    temp_ferm1[rb[1 - cb]] = spinReconstructDir2PlusFull(tmp_h);
+                    temp_ferm1[rb[1 - cb]] = spinProjectDir2PlusFull(psi);
                     break;
                 case 3:
                     // tmp_h[rb[1 - cb]] = spinProjectDir3Plus(psi);
-                    temp_ferm1[rb[1 - cb]] = spinReconstructDir3PlusFull(tmp_h);
+                    temp_ferm1[rb[1 - cb]] = spinProjectDir3PlusFull(psi);
                     break;
                 default:
                     break;
